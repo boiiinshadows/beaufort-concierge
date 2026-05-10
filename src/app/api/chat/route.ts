@@ -144,12 +144,12 @@ Escalation message: *"That's an important question — I want to make sure you g
         inputSchema: z.object({
           purpose: z.enum(['investment', 'own use', 'undecided']).optional(),
           buyer_type: z.enum(['investor', 'owner-occupant', 'undecided']).optional(),
-          budget_min: z.number().optional().describe('Minimum budget in USD. Only provide if explicitly stated by the user, do not guess.'),
-          budget_max: z.number().optional().describe('Maximum budget in USD. Only provide if explicitly stated by the user, do not guess.'),
+          budget_min: z.number().optional().describe('Minimum budget in USD as a raw number (e.g. 300000). Do not use letters like "k". Only provide if explicitly stated by the user, do not guess.'),
+          budget_max: z.number().optional().describe('Maximum budget in USD as a raw number (e.g. 10000000). Do not use letters. Only provide if explicitly stated by the user, do not guess.'),
           preferred_location: z.string().optional().describe('Preferred area e.g. East Legon, Ridge'),
           viewing_property: z.string().optional().describe('The specific Beaufort property you are recommending'),
           interest_level: z.enum(['hot', 'warm', 'cold']).optional(),
-          lead_score: z.number().min(1).max(10).optional().describe('Your internal score 1-10 based on budget, intent, and engagement'),
+          lead_score: z.number().min(1).max(10).optional().describe('Your internal score 1-10 based on budget, intent, and engagement. Must be a number.'),
           conversation_summary: z.string().optional().describe('A brief 1-2 sentence summary of what the prospect is looking for'),
           objections: z.string().optional().describe('Any concerns or hesitations the prospect has raised, if any'),
           last_message: z.string().optional().describe("The prospect's most recent message verbatim"),
@@ -225,7 +225,7 @@ Escalation message: *"That's an important question — I want to make sure you g
           phone: z.string().describe("Prospect's phone number with country code"),
           email: z.string().describe("Prospect's email address"),
           conversation_summary: z.string().optional().describe('Updated 1-2 sentence summary including their confirmed interest'),
-          lead_score: z.number().min(1).max(10).optional().describe('Updated lead score now that contact is captured'),
+          lead_score: z.number().min(1).max(10).optional().describe('Updated lead score now that contact is captured. Must be a number.'),
         }),
         execute: async ({ first_name, last_name, phone, email, conversation_summary, lead_score }) => {
           console.log(`[Session: ${sessionId}] captureLeadContact: ${first_name} | ${phone} | ${email}`);
