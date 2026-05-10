@@ -111,8 +111,8 @@ Frame the ask naturally — make it feel like a service, not a form:
   3. *"Finally, your email address?"*
 
 **CRITICAL — YOU MUST DO THIS IN ORDER:**
-1. Call \`captureLeadContact\` with all three details (name, phone, email). This is NON-NEGOTIABLE.
-2. The ONLY text you are allowed to output in this turn is the exact closing message: *"Perfect. A member of our team will be in touch with you shortly. We look forward to showing you what Beaufort has to offer."*
+1. FIRST, execute the `captureLeadContact` tool with all three details (name, phone, email). This is NON-NEGOTIABLE.
+2. SECOND, reply with the exact closing message: *"Perfect. A member of our team will be in touch with you shortly. We look forward to showing you what Beaufort has to offer."*
 3. CRITICAL: Do NOT output any conversational filler before or after the tool call. Do not say "I will log this now" or "One moment".
 4. The conversation is complete after the closing message. Say nothing else.
 
@@ -157,8 +157,34 @@ Escalation message: *"That's an important question — I want to make sure you g
         execute: async (intent) => {
           console.log(`[Session: ${sessionId}] logLeadIntent:`, intent);
           try {
-            const { error } = await supabase.from('leads').upsert(
-              {
+            const { data: sessionRows } = await supabase
+              .from('leads')
+              .select('*')
+              .eq('session_id', sessionId)
+              .limit(1);
+
+            const existing = sessionRows?.[0] ?? null;
+
+            if (existing) {
+              const { error } = await supabase.from('leads').update({
+                buyer_type: intent.buyer_type || existing.buyer_type,
+                budget_min: intent.budget_min ?? existing.budget_min,
+                budget_max: intent.budget_max ?? existing.budget_max,
+                location_preference: intent.preferred_location || existing.location_preference,
+                preferred_location: intent.preferred_location || existing.preferred_location,
+                purpose: intent.purpose || existing.purpose,
+                viewing_property: intent.viewing_property || existing.viewing_property,
+                interested_property: intent.viewing_property || existing.interested_property,
+                interest_level: intent.interest_level ?? existing.interest_level ?? 'warm',
+                lead_score: intent.lead_score ?? existing.lead_score ?? 5,
+                conversation_summary: intent.conversation_summary || existing.conversation_summary,
+                objections: intent.objections ?? existing.objections ?? '',
+                last_message: intent.last_message || existing.last_message,
+                last_updated: new Date().toISOString(),
+              }).eq('id', existing.id);
+              if (error) console.error('[logLeadIntent] Supabase update error:', error.message);
+            } else {
+              const { error } = await supabase.from('leads').insert({
                 session_id: sessionId,
                 first_name: 'Prospect',
                 last_name: '',
@@ -179,10 +205,9 @@ Escalation message: *"That's an important question — I want to make sure you g
                 status: 'new',
                 viewing_booked: false,
                 last_updated: new Date().toISOString(),
-              },
-              { onConflict: 'session_id' },
-            );
-            if (error) console.error('[logLeadIntent] Supabase error:', error.message);
+              });
+              if (error) console.error('[logLeadIntent] Supabase insert error:', error.message);
+            }
           } catch (e) {
             console.error('logLeadIntent error:', e);
           }
