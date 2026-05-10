@@ -1,0 +1,5 @@
+/* No extra module styles needed — all handled by globals.css classes */
+.widget {
+  position: relative;
+  z-index: 1;
+}
