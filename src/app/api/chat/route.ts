@@ -135,7 +135,7 @@ Then ask for their name and number if not already captured. Do NOT say "I have e
 
   // 4. Stream response
   const result = streamText({
-    model: openrouter('anthropic/claude-3.5-haiku'),
+    model: openrouter('openai/gpt-4o-mini'),
     system: systemPrompt,
     messages,
     tools: {
