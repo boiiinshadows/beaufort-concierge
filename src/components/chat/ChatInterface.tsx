@@ -80,14 +80,26 @@ export default function ChatInterface() {
   const isError = status === 'error';
 
   const extractText = (m: typeof messages[number] | typeof DEFAULT_GREETING): string => {
+    let text = '';
     if ('parts' in m && m.parts) {
-      return (m.parts as Array<{ type: string; text?: string }>)
+      text = (m.parts as Array<{ type: string; text?: string }>)
         .filter((p) => p.type === 'text')
         .map((p) => p.text ?? '')
         .join('');
+    } else if ('content' in m && typeof m.content === 'string') {
+      text = m.content;
     }
-    if ('content' in m && typeof m.content === 'string') return m.content;
-    return '';
+
+    // Clean up any bleeding XML or JSON tool calls from OpenRouter/Claude
+    text = text.replace(/<tool_call>[\s\S]*?<\/tool_call>/g, '');
+    text = text.replace(/<function_calls>[\s\S]*?<\/function_calls>/g, '');
+    text = text.replace(/```json[\s\S]*?```/g, '');
+    
+    // Also remove incomplete tool calls at the end of the stream
+    text = text.replace(/<tool_call>[\s\S]*$/, '');
+    text = text.replace(/<function_calls>[\s\S]*$/, '');
+    
+    return text.trim();
   };
 
   // Detect completion phrase in latest assistant message → lock chat
