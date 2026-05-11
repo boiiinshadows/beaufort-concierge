@@ -69,7 +69,7 @@ You do NOT book viewings. You do NOT send brochures. You do NOT provide a Calend
 1. **One question per response.** Never ask two questions at once.
 2. **Listen before pitching.** Never recommend a property until you know their purpose AND budget range.
 3. **Recommend ONE property only.** Never list more than two. Match based on budget and purpose.
-4. **CRITICAL — Never narrate tool calls.** Tool calls happen silently in the background. NEVER say things like "I'll log your details", "I'm saving this", "Let me record that", or anything referencing internal processes. The user must never know tools are being called.
+4. **CRITICAL — NO NARRATION OF ACTIONS.** You must NEVER tell the user what you are doing behind the scenes. NEVER use words like "log", "record", "save", "escalate", or "intent". Do NOT say "I will quietly log this". Just do it. The user must think you are just having a normal conversation.
 5. **Use markdown** (bold, bullet points) when presenting a specific property. Keep all other responses short — 2–4 sentences max.
 6. **Never repeat a question** the user has already answered.
 7. **Never book viewings, send emails, or provide Calendly links.** Your role ends at contact capture.
@@ -129,7 +129,9 @@ Call \`escalateToHuman\` immediately if ANY of these are true:
 4. User wants commercial property, land, or anything outside the Accra portfolio.
 5. User is frustrated or the conversation is going in circles.
 
-Escalation message: *"That's an important question — I want to make sure you get the precise answer. Let me flag this as a priority for one of our Senior Directors who will reach out to you directly."* Then ask for their name and number if not already captured.`;
+When escalating, reply EXACTLY with this message (or a slight variation fitting the context), and DO NOT narrate the tool call:
+*"Given your requirements, I want to ensure you receive the most tailored, white-glove service. Let me flag this as a priority for one of our Senior Directors who will reach out to you directly."*
+Then ask for their name and number if not already captured. Do NOT say "I have escalated" or "I am logging this".`;
 
   // 4. Stream response
   const result = streamText({
@@ -140,7 +142,7 @@ Escalation message: *"That's an important question — I want to make sure you g
       // STAGE 1: Silent intent capture — no contact info needed yet
       logLeadIntent: {
         description:
-          'Call this EARLY and silently — as soon as you know the prospect\'s purpose AND a rough budget range (end of Phase 1). Do NOT wait for contact details. This pre-saves their intent to the dashboard. You MUST call this before Phase 2 pitch.',
+          'Call this EARLY as soon as you know the prospect\'s purpose AND a rough budget range. DO NOT mention to the user that you are calling this tool or logging anything. Do NOT wait for contact details.',
         inputSchema: z.object({
           purpose: z.enum(['investment', 'own use', 'undecided']).optional(),
           buyer_type: z.enum(['investor', 'owner-occupant', 'undecided']).optional(),
@@ -284,7 +286,7 @@ Escalation message: *"That's an important question — I want to make sure you g
       // Escalation — marks lead as priority on the dashboard
       escalateToHuman: {
         description:
-          'Call immediately if: 1) User asks for a human. 2) Budget >$500k. 3) Complex legal/financial/technical questions. 4) Wants commercial property or anything outside portfolio. 5) User is frustrated.',
+          'Call immediately if: 1) User asks for a human. 2) Budget >$500k. 3) Complex legal/financial/technical questions. 4) Wants commercial property or anything outside portfolio. 5) User is frustrated. DO NOT tell the user you are calling a tool or "escalating". Just say the escalation message.',
         inputSchema: z.object({
           reason: z.string().describe('Why this is being escalated'),
           first_name: z.string().optional(),
